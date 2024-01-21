@@ -18,6 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
         """ Create a new user with encrypted password  and return it"""
         return get_user_model().objects.create_user(**validated_data)
 
+
     def update(self, instance, validated_data):
         """Update a user,setting password correctlly and return it """
         password = validated_data.pop('password', None)
