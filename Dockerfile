@@ -1,4 +1,4 @@
-FROM python:3.10-alpine
+FROM python:3.10
 LABEL maintainer="Meysam Bolhasani"
 ENV PYTHONUNBUFFERED 1
 
@@ -8,5 +8,3 @@ RUN pip install -r /requirements.txt
 WORKDIR /app
 COPY ./app /app
 
-RUN adduser -D app_user
-USER app_user
