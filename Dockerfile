@@ -8,3 +8,5 @@ RUN pip install -r /requirements.txt
 WORKDIR /app
 COPY ./app /app
 
+RUN mkdir -p /vol/web/media
+RUN mkdir -p /vol/web/static
