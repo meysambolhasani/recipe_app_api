@@ -5,10 +5,26 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 
-from core.models import Recipe
-from recipe.serializers import RecipeSerializer
+from core.models import Recipe, Tag, Ingredient
+from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
 
 RECIPES_URL = reverse('recipe:recipe-list')
+
+
+def detail_url(recipe_id):
+    """Return recipe detail URL"""
+    return reverse('recipe:recipe-detail', args=[recipe_id])
+
+
+def sample_tag(user, name='sample_tag'):
+    """Create and return a sample tag"""
+    return Tag.objects.create(user=user, name=name)
+
+
+def sample_ingredient(user, name='sample_ingredient'):
+    """Create and return a sample ingredient"""
+    return Ingredient.objects.create(user=user, name=name)
+
 
 def sample_recipe(user, **params):
     """Create and return a sample recipe"""
@@ -22,6 +38,7 @@ def sample_recipe(user, **params):
 
     return Recipe.objects.create(user=user, **defaults)
 
+
 class PublicRecipeApiTest(TestCase):
     """Test unauthenticatied recipe API access"""
 
@@ -34,6 +51,7 @@ class PublicRecipeApiTest(TestCase):
         response = self.client.get(RECIPES_URL)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 class PrivateRecipeApiTest(TestCase):
     """Test authenticated recipe API access"""
@@ -76,4 +94,18 @@ class PrivateRecipeApiTest(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data, serializer.data)
+
+    def test_view_recipe_details(self):
+        """Test viewing the recipe details"""
+
+        recipe = sample_recipe(user=self.user)
+        recipe.ingredients.add(sample_ingredient(user=self.user))
+        recipe.tags.add(sample_tag(user=self.user))
+
+        url = detail_url(recipe.id)
+
+        response = self.client.get(url)
+
+        serializer = RecipeDetailSerializer(recipe)
         self.assertEqual(response.data, serializer.data)
